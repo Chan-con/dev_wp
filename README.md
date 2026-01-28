@@ -35,6 +35,9 @@ docker compose up -d
 
 管理者アカウントは `.env` の `WP_ADMIN_USER / WP_ADMIN_PASSWORD` です。
 
+> `WP_SITE_URL` は WordPress の `home/siteurl`（DB）にも保存されます。
+> すでにインストール済みの状態でURLを変更したい場合でも、この構成では起動時（`wpcli` 実行時）に `WP_SITE_URL` へ自動同期します。
+
 ## 開発用のマウント
 
 - リポジトリは **まっさらな土台** として使い、WordPressのデータ（`wp_data`）はDockerボリュームで管理します。

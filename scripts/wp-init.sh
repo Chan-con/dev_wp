@@ -98,5 +98,21 @@ if ! wp core is-installed --allow-root >/dev/null 2>&1; then
 
   echo "WordPress installed. Admin: ${WP_SITE_URL}/wp-admin/"
 else
-  echo "WordPress already installed. Nothing to do."
+  desired_url="${WP_SITE_URL:-}"
+  desired_url_norm="${desired_url%/}"
+
+  if [ -n "$desired_url_norm" ]; then
+    current_home="$(wp option get home --skip-plugins --skip-themes --allow-root 2>/dev/null || true)"
+    current_siteurl="$(wp option get siteurl --skip-plugins --skip-themes --allow-root 2>/dev/null || true)"
+
+    if [ "${current_home%/}" != "$desired_url_norm" ] || [ "${current_siteurl%/}" != "$desired_url_norm" ]; then
+      echo "Updating WordPress URLs (home/siteurl) to: ${desired_url_norm}"
+      wp option update home "$desired_url_norm" --skip-plugins --skip-themes --allow-root
+      wp option update siteurl "$desired_url_norm" --skip-plugins --skip-themes --allow-root
+    else
+      echo "WordPress already installed. URLs already match."
+    fi
+  else
+    echo "WordPress already installed. Nothing to do."
+  fi
 fi
