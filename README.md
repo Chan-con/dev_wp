@@ -26,6 +26,13 @@ docker compose up -d
 - 管理画面: `http://localhost:8080/wp-admin/`
 - phpMyAdmin: `http://localhost:8081/`
 
+### EC2 等（パブリックIPでアクセス）
+
+デフォルトは `WP_HTTP_PORT=8080` なので、セキュリティグループで 80 だけ開けている場合はアクセスできません。
+
+- そのまま使う: `http://<public-ip>:8080/`（SG で 8080 を許可）
+- 80番で使う: `.env` の `WP_HTTP_PORT=80` と `WP_SITE_URL=http://<public-ip>/` に変更して再起動
+
 管理者アカウントは `.env` の `WP_ADMIN_USER / WP_ADMIN_PASSWORD` です。
 
 ## 開発用のマウント
