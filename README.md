@@ -44,6 +44,9 @@ docker compose up -d
 
 この構成では、初期化用の `wpcli` が起動時に権限を自動調整し、WordPress側は `FS_METHOD=direct` で直接書き込みします。
 
+また、WordPressコンテナ起動時に `wp-content/uploads` などのディレクトリ作成と権限調整を行うため、
+メディアアップロードやプラグインアップロードで `wp-content/uploads/YYYY/MM` に移動できない問題を起こしにくくしています。
+
 ### 「ディレクトリを作成できませんでした: /var/www/html/wp-content/upgrade/...」が出る場合
 
 WordPress本体データ（`wp_data` ボリューム）側の `wp-content/upgrade` が書き込み不可になっている状態です。

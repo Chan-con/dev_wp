@@ -18,6 +18,7 @@ services:
 
   wordpress:
     image: ${WP_IMAGE:-wordpress:latest}
+    user: "0:0"
     restart: unless-stopped
     depends_on:
       db:
@@ -32,8 +33,10 @@ services:
       WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
       WORDPRESS_CONFIG_EXTRA: |
         define('FS_METHOD', 'direct');
+    entrypoint: ["/bin/sh", "/usr/local/bin/wp-entrypoint.sh"]
     volumes:
       - wp_data:/var/www/html
+      - ./scripts/wp-entrypoint.sh:/usr/local/bin/wp-entrypoint.sh:ro
 
   wpcli:
     image: ${WPCLI_IMAGE:-wordpress:cli}
