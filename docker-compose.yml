@@ -1,0 +1,77 @@
+services:
+  db:
+    image: mariadb:10.11
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${WP_DB_NAME:-wordpress}
+      MYSQL_USER: ${WP_DB_USER:-wp}
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD:-wp_password_change_me}
+      MYSQL_ROOT_PASSWORD: ${WP_DB_ROOT_PASSWORD:-root_password_change_me}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  wordpress:
+    image: ${WP_IMAGE:-wordpress:latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WP_HTTP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WP_DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${WP_DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-wp_password_change_me}
+      WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('FS_METHOD', 'direct');
+    volumes:
+      - wp_data:/var/www/html
+
+  wpcli:
+    image: ${WPCLI_IMAGE:-wordpress:cli}
+    user: "0:0"
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WP_DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${WP_DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-wp_password_change_me}
+      WP_SITE_URL: ${WP_SITE_URL:-http://localhost:8080}
+      WP_SITE_TITLE: ${WP_SITE_TITLE:-Dev WP}
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-admin_password_change_me}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.com}
+      WP_LOCALE: ${WP_LOCALE:-ja}
+    volumes:
+      - wp_data:/var/www/html
+      - ./scripts/wp-init.sh:/usr/local/bin/wp-init:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/wp-init"]
+    restart: "no"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PMA_HTTP_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+
+volumes:
+  db_data:
+  wp_data:

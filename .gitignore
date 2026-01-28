@@ -1,0 +1,43 @@
+# --- Secrets / env files ---
+.env*
+!.env.example
+
+# --- OS / editor / tooling ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*~
+
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- WordPress (minimal managed set) ---
+# Local WP config and rewrite rules (generated and/or contain secrets)
+wp-config.php
+wp-config.php.*
+.htaccess
+
+# wp-content is treated as fully generated (do not manage in git)
+wp-content/
+
+# --- Dependency/build outputs (themes/plugins) ---
+wp-content/themes/**/node_modules/
+wp-content/themes/**/dist/
+wp-content/themes/**/build/
+wp-content/themes/**/.parcel-cache/
+
+wp-content/plugins/**/node_modules/
+wp-content/plugins/**/vendor/
+
+# --- Local scratch dirs (if created) ---
+tmp/
+temp/
+cache/
